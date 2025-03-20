@@ -1,9 +1,14 @@
+/* =========================================
+   1. Variáveis de Tema (Root)
+========================================= */
 :root {
   --underline-spacing: 0.2rem;
   --primary-color: #002a69;
   --secondary-color: #E73363;
-  --success-color: #008000; /* Verde */
-  --alert-color: #FF0000;   /* Vermelho */
+  --success-color: #008000;
+  /* Verde */
+  --alert-color: #FF0000;
+  /* Vermelho */
   --bg-color: #fff;
   --text-color: #000;
   --container-bg: #fff;
@@ -14,9 +19,13 @@
   --button-hover-bg: #E73363;
   --font-family: 'Inter', sans-serif;
   --max-form-width: 300px;
+  --transition-speed: 300ms;
+  /* Adicionada para transições */
 }
 
-/* Reset e scroll suave */
+/* =========================================
+   2. Reset e Base
+========================================= */
 * {
   margin: 0;
   padding: 0;
@@ -34,7 +43,9 @@ body {
   line-height: 1.5;
 }
 
-/* Header */
+/* =========================================
+   3. Header e Navegação
+========================================= */
 header {
   background: var(--bg-color);
   padding: 0.5rem 1rem;
@@ -46,14 +57,13 @@ header {
   left: 0;
   width: 100%;
   z-index: 100;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 header .logo img {
   max-height: 3rem;
 }
 
-/* Navegação */
 nav.menu ul {
   list-style: none;
   display: flex;
@@ -96,14 +106,16 @@ nav.menu ul li a:hover::after {
   left: 25%;
 }
 
-/* Página Título */
+/* =========================================
+   4. Título da Página
+========================================= */
 .page-title {
   text-align: center;
   padding: 3rem 0;
-  padding-bottom: 0;
+  padding-bottom: 1px;
   background-color: var(--primary-color);
   color: var(--bg-color);
-  margin-top: 60px; /* Espaço para compensar o header */
+  margin-top: 60px;
 }
 
 .page-title h1 {
@@ -111,7 +123,9 @@ nav.menu ul li a:hover::after {
   margin: 0;
 }
 
-/* Agrupador de containers com perspectiva */
+/* =========================================
+   5. Layout de Conteúdo
+========================================= */
 .content {
   display: flex;
   gap: 1.5rem;
@@ -121,7 +135,9 @@ nav.menu ul li a:hover::after {
   perspective: 1500px;
 }
 
-/* Containers com efeito 3D e largura maior */
+/* =========================================
+   6. Containers (Efeito 3D)
+========================================= */
 .container {
   flex: 0 1 350px;
   max-width: 350px;
@@ -151,7 +167,9 @@ nav.menu ul li a:hover::after {
   color: var(--secondary-color);
 }
 
-/* Pré-visualização (modo tela) */
+/* =========================================
+   7. Pré-visualização (Preview)
+========================================= */
 #preview-container {
   margin: 2rem auto;
   max-width: 90%;
@@ -159,13 +177,15 @@ nav.menu ul li a:hover::after {
   color: var(--container-text);
   padding: 2rem;
   border-radius: 8px;
-  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
   position: relative;
 }
 
-/* Formulário */
+/* =========================================
+   8. Formulários
+========================================= */
 .formulario {
   display: flex;
   flex-direction: column;
@@ -193,7 +213,6 @@ nav.menu ul li a:hover::after {
   box-shadow: 0 0 0 2px rgba(231, 51, 99, 0.2);
 }
 
-/* Estilo para textarea */
 .formulario textarea {
   width: 100%;
   padding: 0.75rem;
@@ -211,7 +230,9 @@ nav.menu ul li a:hover::after {
   color: var(--text-color);
 }
 
-/* Botões */
+/* =========================================
+   9. Botões
+========================================= */
 .button {
   background-color: var(--button-bg);
   font-weight: bold;
@@ -231,7 +252,9 @@ nav.menu ul li a:hover::after {
   transform: translateY(-2px);
 }
 
-/* Input com símbolo de moeda */
+/* =========================================
+   10. Input com Símbolo de Moeda
+========================================= */
 .input-container {
   position: relative;
   width: 100%;
@@ -239,7 +262,7 @@ nav.menu ul li a:hover::after {
 
 .input-container input {
   width: 100%;
-  padding-left: 1rem; 
+  padding-left: 1rem;
   position: relative;
   z-index: 2;
 }
@@ -255,57 +278,63 @@ nav.menu ul li a:hover::after {
   z-index: 1;
 }
 
-/* Placeholder styling */
-.formulario input::placeholder,
-.formulario textarea::placeholder {
-  color: var(--text-color);
-}
-
-/* Impressão: configura o preview para preencher uma folha A4 */
+/* =========================================
+   11. Impressão (Configurações de @media print)
+========================================= */
 @media print {
   @page {
     margin: 0;
     size: A4;
   }
-  body, html {
+
+  body,
+  html {
     margin: 0 !important;
     padding: 0 !important;
     height: 100%;
   }
+
   body * {
     display: none !important;
   }
-  #preview-container, #preview-container * {
+
+  #preview-container,
+  #preview-container * {
     display: block !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
+
   #preview-container {
     position: static !important;
     margin: 0 auto !important;
     padding: 0.5in !important;
     width: 210mm !important;
-    /* Importante: REMOVER height fixa e usar auto. */
-    height: auto !important; 
+    height: auto !important;
     box-sizing: border-box;
   }
+
   #printButton {
     display: none !important;
   }
 }
 
-/* Regras para quebra de linha no preview (Relato etc.) */
+/* =========================================
+   12. Ajustes de Texto no Preview
+========================================= */
 #printPreview p {
   white-space: pre-wrap;
   word-wrap: break-word;
 }
 
-/* Footer */
+/* =========================================
+   13. Footer
+========================================= */
 footer {
   background-color: var(--bg-color);
   padding: 1rem 0;
   text-align: center;
-  box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
   margin-top: 2rem;
 }
 
@@ -313,4 +342,146 @@ footer .footer-content p {
   margin: 0.25rem 0;
   font-size: 0.9rem;
   color: var(--text-color);
+}
+
+/* =========================================
+   14. Lista de PDFs 
+========================================= */
+.pdf-order-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 1rem;
+}
+
+.pdf-order-list li {
+  background: var(--input-bg);
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: move;
+  border: #000 solid 1px;
+}
+
+
+/* =========================================
+   15. Nome do Arquivo (Container)
+========================================= */
+#nome-arquivo-container.container {
+  flex: 0 0 600px !important;
+  max-width: 1710px !important;
+  margin: 0 auto;
+}
+
+#nome-arquivo-container .formulario {
+  max-width: 1200px !important;
+}
+
+#nome-arquivo-container .formulario #nomeArquivo {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#nome-arquivo-container .formulario .button {
+  width: 300px;
+  margin: 0 auto;
+}
+
+/* =========================================
+   16. Custom Radio Buttons 
+========================================= */
+.radio-group {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin: 1rem 0;
+}
+
+.custom-radio {
+  position: relative;
+  padding-left: 30px;
+  cursor: pointer;
+  font-size: 1rem;
+  user-select: none;
+  display: inline-block;
+}
+
+/* Oculta o input real */
+.custom-radio input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* Cria o círculo personalizado */
+.custom-radio label:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--input-border);
+  background: var(--secondary-color);
+  border-radius: 50%;
+  transition: all var(--transition-speed) ease;
+}
+
+/* Hover para alterar a cor da borda */
+.custom-radio:hover label:before {
+  border-color: var(--primary-color);
+}
+
+/* Quando selecionado, altera o fundo e a borda */
+.custom-radio input:checked+label:before {
+  background: var(--button-bg);
+  border-color: var(--button-bg);
+}
+
+/* Cria o "check" */
+.custom-radio label:after {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 50%;
+  transform: translateY(-65%) rotate(45deg);
+  width: 6px;
+  height: 12px;
+  border: solid var(--bg-color);
+  border-width: 0 2px 2px 0;
+  opacity: 0;
+  transition: opacity var(--transition-speed) ease;
+}
+
+.custom-radio input:checked+label:after {
+  opacity: 1;
+}
+
+/* =========================================
+   17. Radio Data Adiantado Container
+========================================= */
+#radioDataAdiantadoContainer {
+  margin-top: 0.5rem;
+  display: none;
+}
+
+#radioDataAdiantadoContainer label {
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+  display: block;
+}
+
+#radioDataAdiantadoContainer input {
+  width: 50%;
+  padding: 0 0.5rem;
+  font-size: 1rem;
+  border: var(--input-border);
+  border-radius: 4px;
+  background-color: var(--input-bg);
+  color: var(--text-color);
+  text-align: center;
+  display: flex;
 }
