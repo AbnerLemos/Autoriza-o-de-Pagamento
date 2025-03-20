@@ -7,6 +7,10 @@
   <!-- CSS principal -->
   <link rel="stylesheet" href="style.css">
   <link rel="shortcut icon" type="image/png" href="https://pedilar.com.br/wp-content/uploads/2021/08/FAVICON-1.png">
+  <!-- Biblioteca jsPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- Biblioteca html2canvas (mantida para a mesclagem de PDFs, se necessário) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
   <header>
@@ -41,16 +45,17 @@
         <input type="text" id="cnpj" placeholder="CNPJ/CPF" required>
         <h3>Data de Vencimento:</h3>
         <input type="date" id="data" required>
+        <!-- Método de pagamento -->
         <select name="pg" id="pagamento" required>
-          <option value="">Método de Pagamento</option>
+          <option value="metodo">Método de Pagamento</option>
           <option value="boleto">Boleto</option>
           <option value="pix">Pix</option>
           <option value="cartao">Cartão</option>
           <option value="Transferência Bancária">Transferência Bancária</option>
           <option value="Guia">Guia</option>
           <option value="Dinheiro">Dinheiro</option>
-          <option value="Adiantamento">Adiantamento</option>
         </select>
+
         <div id="paymentDetails"></div>
         <div id="notaFiscalContainer" style="display: none;">
           <label for="notaFiscalFile">Nota Fiscal em anexo:</label>
@@ -58,6 +63,30 @@
           <label for="notaFiscalDate">Data da Nota Fiscal:</label>
           <input type="date" id="notaFiscalDate">
         </div>
+        
+        <!-- Grupo de Radio Buttons para Nota Fiscal em Anexo -->
+        <div>
+          <label>Nota fiscal em Anexo:</label>
+          <div class="radio-group">
+            <div class="custom-radio">
+              <input type="radio" name="grupoOpcao" id="notaFiscalSim" value="1">
+              <label for="notaFiscalSim">Sim</label>
+            </div>
+            <div class="custom-radio">
+              <input type="radio" name="grupoOpcao" id="notaFiscalNao" value="2">
+              <label for="notaFiscalNao">Não</label>
+            </div>
+            <div class="custom-radio">
+              <input type="radio" name="grupoOpcao" id="notaFiscalAdiantamento" value="3">
+              <label for="notaFiscalAdiantamento">Pagamento Adiantamento</label>
+            </div>
+          </div>
+        </div>
+        <!-- Container para Data do Pagamento Adiantado -->
+        <div id="radioDataAdiantadoContainer">
+          <label for="radioDataAdiantado"></label>
+          <input type="text" id="radioDataAdiantado" readonly>
+        </div> 
       </div>
     </div>
     
@@ -65,7 +94,6 @@
     <div id="centro-custo" class="container">
       <h2>Centro de Custo</h2>
       <div class="formulario">
-        <!-- Departamentos (Setor) -->
         <select name="setor" id="setor" required>
           <option value="">Nome Do Setor</option>
           <option value="Diretoria Presidencia">Diretoria Presidencia</option>
@@ -103,7 +131,6 @@
           <option value="Departamento Voluntariado">Departamento Voluntariado</option>
         </select>
     
-        <!-- Categorias -->
         <select name="categoria" id="categoria" required>
           <option value="">Categoria</option>
           <option value="Empréstimos Bancários">Empréstimos Bancários</option>
@@ -272,11 +299,11 @@
           <option value="Distribuição De Lucros E Resultados">Distribuição De Lucros E Resultados</option>
         </select>
         <textarea id="relato" placeholder="Descreva um breve relato (mínimo 50 caracteres)" required></textarea>
+        
       </div>
     </div>
     
-    
-    <!-- Download e Mesclagem -->
+    <!-- Download e Mesclagem (sem o campo de nome do arquivo) -->
     <div id="download" class="container">
       <h2>Download e Mesclagem</h2>
       <div class="formulario">
@@ -288,27 +315,43 @@
         <div id="mergeResult"></div>
       </div>
     </div>
-  </div>
-  
-  <!-- Área de Pré-visualização -->
-  <div id="preview-container" class="container">
-    <h2>Autorização de Pagamento</h2>
-    <div id="printPreview"></div>
-    <button class="button" id="printButton">Download</button>
-  </div>
-  
-  <!-- Footer -->
-  <footer>
-    <div class="footer-content">
-      <p>&copy; 2025 Pedilar Domiciliar. Todos os direitos reservados.</p>
-      <p>Contato: ti@pedilar.com.br | Telefone: (31) 3273-2017</p>
-      <p>by Abner Esquarcio</p>
+
+    <!-- Organização da Ordem dos PDFs -->
+    <div id="pdfOrderContainer" class="container" style="display: none;">
+      <h2>Organize a Ordem dos PDFs</h2>
+      <p>Arraste e solte para reordenar:</p>
+      <ul id="pdfOrderList" class="pdf-order-list"></ul>
+      <button class="button" id="saveOrderButton">Salvar Ordem</button>
     </div>
-  </footer>
+  </div>
+</div>
+
+<div id="nome-arquivo-container" class="container">
+  <h2>Nome do Arquivo</h2>
+  <div class="formulario">
+    <input type="text" id="nomeArquivo" readonly style="width:100%; padding:0.5rem; margin-top:0.5rem;"/>
+    <button class="button" id="copiarNomeArquivo" style="margin-top:0.5rem;">Copiar Nome</button>
+  </div>
+</div>
+
+<!-- Área de Pré-visualização -->
+<div id="preview-container" class="container">
+  <h2>Autorização de Pagamento</h2>
+  <div id="printPreview"></div>
+  <button class="button" id="printButton">Download (Print)</button>
+</div>
   
-  <!-- Biblioteca PDF-lib para mesclagem -->
-  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
-  <!-- Script principal -->
-  <script src="script.js"></script>
+<!-- Footer -->
+<footer>
+  <div class="footer-content">
+    <p>&copy; 2025 Pedilar Domiciliar. Todos os direitos reservados.</p>
+    <p>Contato: ti@pedilar.com.br | Telefone: (31) 3273-2017</p>
+    <p>by Abner Esquarcio</p>
+  </div>
+</footer>
+  
+<!-- Script principal -->
+<script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
