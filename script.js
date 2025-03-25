@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function() { 
   // Define o mínimo para o campo de data como a data atual
   const dataInput = document.getElementById("data");
   const todayDate = new Date().toISOString().split("T")[0];
@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }).format(numericValue / 100);
   });
 
-  // 2. Formatação automática para CPF/CNPJ
+  // 2. Formatação automática para CPF/CNPJ e validação mínima de 11 dígitos (somente números)
   const cpfCnpjInput = document.getElementById('cnpj');
   cpfCnpjInput.addEventListener('input', function(e) {
     let value = e.target.value.replace(/\D/g, '');
@@ -47,6 +47,7 @@ document.addEventListener("DOMContentLoaded", function() {
       e.target.value = '';
       return;
     }
+    // Se o valor for menor ou igual a 11, formata como CPF
     if (value.length <= 11) {
       value = value.substring(0, 11);
       value = value.replace(/^(\d{3})(\d)/, '$1.$2');
@@ -64,7 +65,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
   // 3. Atualiza os campos adicionais de pagamento
   document.getElementById("pagamento").addEventListener("change", function() {
-    const selected = this.value;
+    const selected = this.value.toLowerCase();
     const paymentDetails = document.getElementById("paymentDetails");
     paymentDetails.innerHTML = "";
     if (!selected || selected === "metodo") {
@@ -76,12 +77,12 @@ document.addEventListener("DOMContentLoaded", function() {
         <label for="chavePix">Chave Pix:</label>
         <input type="text" id="chavePix" placeholder="Digite sua chave Pix" required>
       `;
-    } else if (selected === "Transferência Bancária") {
+    } else if (selected === "transferência bancária") {
       paymentDetails.innerHTML = `
         <label for="agencia">Agência:</label>
-        <input type="text" id="agencia" placeholder="Digite a agência" required minlength="4">
+        <input type="text" id="agencia" placeholder="Digite a agência" required maxlength="4">
         <label for="conta">Conta:</label>
-        <input type="text" id="conta" placeholder="Digite a conta" required minlength="5">
+        <input type="text" id="conta" placeholder="Digite a conta" required maxlength="5">
         <label for="tipoConta">Tipo de Conta:</label>
         <select id="tipoConta" required>
           <option value="">Selecione o Tipo de Conta</option>
@@ -90,19 +91,28 @@ document.addEventListener("DOMContentLoaded", function() {
           <option value="CONTA POUPANÇA">Conta Poupança</option>
         </select>
       `;
+      // Limita a conta a 5 dígitos e insere um hífen antes do último
       document.getElementById("conta").addEventListener("input", function() {
         let val = this.value.replace(/\D/g, '');
-        if (val.length >= 5) {
+        if (val.length > 5) {
+          val = val.slice(0, 5);
+        }
+        if (val.length === 5) {
           this.value = val.slice(0, -1) + "-" + val.slice(-1);
         } else {
           this.value = val;
         }
       });
-    } else if (selected === "Guia") {
+    } else if (selected === "dinheiro") {
       paymentDetails.innerHTML = `
-        <label for="codigoGuia">Código da Guia:</label>
-        <input type="text" id="codigoGuia" placeholder="Digite o código da guia" required>
+        <label for="autorizador1">Autorizador 1:</label>
+        <input type="text" id="autorizador1" placeholder="Digite o nome do Autorizador 1" required>
+        <label for="autorizador2">Autorizador 2:</label>
+        <input type="text" id="autorizador2" placeholder="Digite o nome do Autorizador 2" required>
       `;
+    } else if (selected === "guia") {
+      // Para "guia", não exibe nenhum campo extra
+      paymentDetails.innerHTML = ``;
     }
   });
 
@@ -145,7 +155,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const categoria = document.getElementById("categoria").value.trim().toUpperCase();
     const relato = document.getElementById("relato").value.trim();
 
-    // Validação dos campos obrigatórios
+    // Validações dos campos obrigatórios
     if (nome.length < 11) {
       alert("O campo 'Nome do solicitante' deve ter no mínimo 11 caracteres.");
       return;
@@ -162,6 +172,11 @@ document.addEventListener("DOMContentLoaded", function() {
       alert("O campo 'CNPJ/CPF' é obrigatório.");
       return;
     }
+    // Validação do CNPJ/CPF: deve conter no mínimo 11 dígitos (somente números)
+    if (cnpj.replace(/\D/g, '').length < 11) {
+      alert("O campo 'CNPJ/CPF' deve ter no mínimo 11 dígitos.");
+      return;
+    }
     if (relato === "") {
       alert("O campo 'Relato' é obrigatório.");
       return;
@@ -176,7 +191,7 @@ document.addEventListener("DOMContentLoaded", function() {
       return;
     }
     if (setor === "") {
-      alert("O campo 'Nome do Setor' é obrigatório.");
+      alert("O campo 'Centro de Custo' é obrigatório.");
       return;
     }
     if (categoria === "") {
@@ -196,6 +211,7 @@ document.addEventListener("DOMContentLoaded", function() {
       return;
     }
 
+    // Verifica se a data de vencimento não é anterior à data atual
     const dueDate = new Date(`${dataVenc}T00:00:00`);
     dueDate.setHours(0, 0, 0, 0);
     const today = new Date();
@@ -204,6 +220,11 @@ document.addEventListener("DOMContentLoaded", function() {
       alert("A data de vencimento não pode ser anterior à data atual.");
       return;
     }
+
+    // Cálculo da Data Limite para Entrega da NF (10 dias após a data de vencimento)
+    const dataLimiteNF = new Date(`${dataVenc}T00:00:00`);
+    dataLimiteNF.setDate(dataLimiteNF.getDate() + 10);
+    const formattedDataLimiteNF = formatDateIsoToBrazil(dataLimiteNF.toISOString().split("T")[0]);
 
     // Campos extras do método de pagamento
     let previewExtra = "";
@@ -222,8 +243,20 @@ document.addEventListener("DOMContentLoaded", function() {
         alert("É obrigatório informar a Agência.");
         return;
       }
+      // Ignora caracteres não numéricos (como hífen) na validação de Agência
+      const agenciaDigits = agencia.value.replace(/\D/g, '');
+      if (agenciaDigits.length !== 4) {
+        alert("O campo 'Agência' deve ter exatamente 4 dígitos.");
+        return;
+      }
       if (!contaField || !contaField.value.trim()) {
         alert("É obrigatório informar a Conta.");
+        return;
+      }
+      // Ignora caracteres não numéricos (como hífen) na validação de Conta
+      const contaDigits = contaField.value.replace(/\D/g, '');
+      if (contaDigits.length !== 5) {
+        alert("O campo 'Conta' deve ter exatamente 5 caracteres.");
         return;
       }
       if (!tipoConta || !tipoConta.value.trim()) {
@@ -233,18 +266,27 @@ document.addEventListener("DOMContentLoaded", function() {
       previewExtra = `<p><strong>AGÊNCIA:</strong> ${agencia.value.trim().toUpperCase()}</p>
                       <p><strong>CONTA:</strong> ${contaField.value.trim().toUpperCase()}</p>
                       <p><strong>TIPO DE CONTA:</strong> ${tipoConta.value.trim().toUpperCase()}</p>`;
-    } else if (pagamento === "GUIA") {
-      const codigoGuia = document.getElementById("codigoGuia");
-      if (!codigoGuia || !codigoGuia.value.trim()) {
-        alert("É obrigatório informar o Código da Guia.");
+    } else if (pagamento === "DINHEIRO") {
+      const autorizador1 = document.getElementById("autorizador1");
+      const autorizador2 = document.getElementById("autorizador2");
+      if (!autorizador1 || !autorizador1.value.trim()) {
+        alert("É obrigatório informar o Autorizador 1.");
         return;
       }
-      previewExtra = `<p><strong>CÓDIGO DA GUIA:</strong> ${codigoGuia.value.trim().toUpperCase()}</p>`;
+      if (!autorizador2 || !autorizador2.value.trim()) {
+        alert("É obrigatório informar o Autorizador 2.");
+        return;
+      }
+      previewExtra = `<p><strong>AUTORIZADOR 1:</strong> ${autorizador1.value.trim().toUpperCase()}</p>
+                      <p><strong>AUTORIZADOR 2:</strong> ${autorizador2.value.trim().toUpperCase()}</p>`;
+    } else if (pagamento === "GUIA") {
+      // Para "Guia", não é necessário campo extra
+      previewExtra = "";
     }
 
     const diffTime = dueDate.getTime() - today.getTime();
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    const bgColor = diffDays <= 4 ? "#ff9999" : "#99ff99";
+    const bgColor = diffDays <= 4 ? "#ff9999" : "#69C0AE";
     const formattedDataVenc = formatDateIsoToBrazil(dataVenc);
 
     let previewContent = `
@@ -256,14 +298,15 @@ document.addEventListener("DOMContentLoaded", function() {
       <p><strong>NOME DO FAVORECIDO:</strong> ${favorecidoU}</p>
       <p><strong>CNPJ/CPF:</strong> ${cnpj.toUpperCase()}</p>
       <p><strong>DATA DE VENCIMENTO:</strong> ${formattedDataVenc}</p>
+      <p><strong>DATA LIMITE PARA ENTREGA DA NF:</strong> ${formattedDataLimiteNF}</p>
       <p><strong>MÉTODO DE PAGAMENTO:</strong> ${pagamento}</p>
       ${previewExtra}
-      <p><strong>NOME DO SETOR:</strong> ${setor}</p>
+      <p><strong>CENTRO DE CUSTO:</strong> ${setor}</p>
       <p><strong>CATEGORIA:</strong> ${categoria}</p>
       <p style="white-space: pre-wrap;"><strong>RELATO:</strong><br>${relato}</p>
     `;
 
-    // Nota Fiscal em Anexo (em maiúsculo)
+    // Nota Fiscal em Anexos
     let notaFiscalOption = "";
     notaFiscalRadios.forEach(radio => {
       if (radio.checked) {
@@ -306,14 +349,18 @@ document.addEventListener("DOMContentLoaded", function() {
       : parts[0][0].toUpperCase() + parts[parts.length - 1][0].toUpperCase();
   }
 
+  // Função para montar o nome do arquivo usando as iniciais do solicitante e as duas primeiras palavras do favorecido
   function montarNomeArquivo() {
     const nomeSolicitante = document.getElementById("nome").value.trim();
-    const categoria = document.getElementById("categoria").value.trim();
+    const favorecido = document.getElementById("favorecido").value.trim();
     const valor = document.getElementById("valor").value.trim();
     const dataVenc = document.getElementById("data").value;
     const iniciais = getInitials(nomeSolicitante);
-    const dataFormatted = formatDateIsoToBrazil(dataVenc);
-    return `${iniciais} - AUTORIZACAO DE PAGAMENTO - ${categoria.toUpperCase()} - ${valor} - VENC ${dataFormatted}.pdf`;
+    let dataFormatted = formatDateIsoToBrazil(dataVenc);
+    // Remove as barras da data para não usar "\" no nome do arquivo
+    dataFormatted = dataFormatted.replace(/\//g, "-");
+    const favorecidoName = favorecido.split(/\s+/).slice(0,2).join(" ");
+    return `${iniciais} - AUTORIZACAO DE PAGAMENTO - ${favorecidoName.toUpperCase()} - ${valor} - VENC ${dataFormatted}.pdf`;
   }
 
   function updateFileName() {
