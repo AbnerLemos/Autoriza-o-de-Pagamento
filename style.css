@@ -6,9 +6,7 @@
   --primary-color: #002a69;
   --secondary-color: #E73363;
   --success-color: #008000;
-  /* Verde */
   --alert-color: #FF0000;
-  /* Vermelho */
   --bg-color: #fff;
   --text-color: #000;
   --container-bg: #fff;
@@ -484,4 +482,43 @@ footer .footer-content p {
   color: var(--text-color);
   text-align: center;
   display: flex;
+}
+/* =========================================
+   16.1. Nota Fiscal em Anexo - Estilização
+========================================= */
+
+/* Exemplo de "container" visual para a seção de Nota Fiscal */
+/* =========================================
+   17. Radio Data Adiantado Container
+========================================= */
+#radioDataAdiantadoContainer {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 2px dashed var(--secondary-color);
+  border-radius: 4px;
+  background-color: #fafafa;
+  
+  /* Transforma em "flex" para alinhar label e input na mesma linha */
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* Espaço entre label e input */
+  justify-content: flex-start; /* Alinha ao início */
+}
+
+#radioDataAdiantadoContainer label {
+  font-weight: bold;
+  color: var(--primary-color);
+  margin-bottom: 0;
+  /* Mantém o label em linha */
+  display: inline-block;
+}
+
+#radioDataAdiantadoContainer input {
+  width: 120px;          /* Ajuste a largura conforme desejar */
+  text-align: center;
+  background-color: var(--bg-color);
+  border: var(--input-border);
+  border-radius: 4px;
+  font-size: 1rem;
+  padding: 0.5rem;
 }
