@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function() { 
+document.addEventListener("DOMContentLoaded", function() {  
   // Define o mínimo para o campo de data como a data atual
   const dataInput = document.getElementById("data");
   const todayDate = new Date().toISOString().split("T")[0];
@@ -82,7 +82,7 @@ document.addEventListener("DOMContentLoaded", function() {
         <label for="agencia">Agência:</label>
         <input type="text" id="agencia" placeholder="Digite a agência" required maxlength="4">
         <label for="conta">Conta:</label>
-        <input type="text" id="conta" placeholder="Digite a conta" required maxlength="5">
+        <input type="text" id="conta" placeholder="Digite a conta" required>
         <label for="tipoConta">Tipo de Conta:</label>
         <select id="tipoConta" required>
           <option value="">Selecione o Tipo de Conta</option>
@@ -91,13 +91,10 @@ document.addEventListener("DOMContentLoaded", function() {
           <option value="CONTA POUPANÇA">Conta Poupança</option>
         </select>
       `;
-      // Limita a conta a 5 dígitos e insere um hífen antes do último
+      // Formata o campo "conta": se houver no mínimo 5 dígitos, insere um hífen antes do último dígito.
       document.getElementById("conta").addEventListener("input", function() {
         let val = this.value.replace(/\D/g, '');
-        if (val.length > 5) {
-          val = val.slice(0, 5);
-        }
-        if (val.length === 5) {
+        if (val.length >= 5) {
           this.value = val.slice(0, -1) + "-" + val.slice(-1);
         } else {
           this.value = val;
@@ -116,19 +113,33 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   });
 
+  // Atualiza o campo "dataLimite" sempre que a data de vencimento for alterada
+  document.getElementById("data").addEventListener("change", function() {
+    const dataVenc = this.value;
+    if (dataVenc) {
+      const dataLimite = new Date(`${dataVenc}T00:00:00`);
+      dataLimite.setDate(dataLimite.getDate() + 10);
+      const formattedDataLimite = formatDateIsoToBrazil(dataLimite.toISOString().split("T")[0]);
+      const dataLimiteField = document.getElementById("dataLimite");
+      if (dataLimiteField) {
+        dataLimiteField.value = formattedDataLimite;
+      }
+    }
+  });
+
   // Configuração dos radio buttons para Nota Fiscal em Anexo
   const radioDataAdiantadoContainer = document.getElementById("radioDataAdiantadoContainer");
-  const radioDataAdiantado = document.getElementById("radioDataAdiantado");
+  const dataLimiteField = document.getElementById("dataLimite");
   document.querySelectorAll('input[name="grupoOpcao"]').forEach(radio => {
     radio.addEventListener("change", function() {
       if (this.value === "3") {
         const today = new Date();
         const futureDate = addBusinessDays(today, 10);
-        radioDataAdiantado.value = formatDateIsoToBrazil(futureDate.toISOString().slice(0,10));
+        dataLimiteField.value = formatDateIsoToBrazil(futureDate.toISOString().slice(0,10));
         radioDataAdiantadoContainer.style.display = "flex";
       } else {
         radioDataAdiantadoContainer.style.display = "none";
-        radioDataAdiantado.value = "";
+        dataLimiteField.value = "";
       }
     });
   });
@@ -255,8 +266,8 @@ document.addEventListener("DOMContentLoaded", function() {
       }
       // Ignora caracteres não numéricos (como hífen) na validação de Conta
       const contaDigits = contaField.value.replace(/\D/g, '');
-      if (contaDigits.length !== 5) {
-        alert("O campo 'Conta' deve ter exatamente 5 caracteres.");
+      if (contaDigits.length < 5) {
+        alert("O campo 'Conta' deve ter no mínimo 5 caracteres.");
         return;
       }
       if (!tipoConta || !tipoConta.value.trim()) {
@@ -311,7 +322,7 @@ document.addEventListener("DOMContentLoaded", function() {
     notaFiscalRadios.forEach(radio => {
       if (radio.checked) {
         if (radio.value === "3") {
-          notaFiscalOption = "PAGAMENTO ADIANTADO - " + radioDataAdiantado.value.toUpperCase();
+          notaFiscalOption = "PAGAMENTO ADIANTADO - " + dataLimiteField.value.toUpperCase();
         } else if (radio.value === "1") {
           notaFiscalOption = "SIM";
         } else if (radio.value === "2") {
